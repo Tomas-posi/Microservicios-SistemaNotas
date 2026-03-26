@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Notas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #eef2ff, #f8fafc, #dbeafe);
+      padding: 30px;
+      color: #0f172a;
+    }
+
+    .wrapper {
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .title-box h1 {
+      font-size: 42px;
+      margin-bottom: 8px;
+    }
+
+    .title-box p {
+      color: #475569;
+      font-size: 16px;
+    }
+
+    .user-card {
+      background: white;
+      padding: 18px 22px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      min-width: 260px;
+    }
+
+    .user-card .label {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .user-card .email {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.08);
+      padding: 28px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      padding: 13px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .primary-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    .primary-btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .secondary-btn:hover {
+      background: #cbd5e1;
+    }
+
+    .status {
+      margin-bottom: 18px;
+      min-height: 24px;
+      font-weight: bold;
+      color: #334155;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    thead {
+      background: #eff6ff;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      color: #1e3a8a;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      color: #0f172a;
+      font-size: 15px;
+    }
+
+    .grade-pill {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .high {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .medium {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .low {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .empty {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 20px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .summary-card .label {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .summary-card .value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="topbar">
+      <div class="title-box">
+        <h1>Mis Notas</h1>
+        <p>Consulta tu información académica autenticada por token JWT.</p>
+      </div>
+
+      <div class="user-card">
+        <div class="label">Estudiante autenticado</div>
+        <div class="email" id="welcome"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="actions">
+        <button class="primary-btn" onclick="loadGrades()">Ver notas</button>
+        <button class="secondary-btn" onclick="logout()">Cerrar sesión</button>
+      </div>
+
+      <div class="status" id="status">Presiona "Ver notas" para consultar tus materias.</div>
+
+      <div class="summary" id="summary" style="display:none;">
+        <div class="summary-card">
+          <div class="label">Cantidad de materias</div>
+          <div class="value" id="totalSubjects">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Promedio</div>
+          <div class="value" id="averageGrade">0.0</div>
+        </div>
+      </div>
+
+      <div id="tableContainer">
+        <div class="empty">Aún no has cargado tus notas.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const email = localStorage.getItem("email");
+
+    if (!token) {
+      window.location.href = "/";
+    }
+
+    document.getElementById("welcome").textContent = email || "Usuario";
+
+    function getGradeClass(grade) {
+      const numericGrade = parseFloat(grade);
+      if (numericGrade >= 4.0) return "high";
+      if (numericGrade >= 3.0) return "medium";
+      return "low";
+    }
+
+    async function loadGrades() {
+      const tableContainer = document.getElementById("tableContainer");
+      const status = document.getElementById("status");
+      const summary = document.getElementById("summary");
+
+      status.textContent = "Cargando notas...";
+      tableContainer.innerHTML = "";
+
+      try {
+        const res = await fetch("http://localhost:3002/grades", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          status.textContent = data.message || "No se pudieron obtener las notas.";
+          tableContainer.innerHTML = `<div class="empty">No fue posible cargar la información.</div>`;
+          summary.style.display = "none";
+          return;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          status.textContent = "No hay notas registradas para este estudiante.";
+          tableContainer.innerHTML = `<div class="empty">No existen materias registradas.</div>`;
+          summary.style.display = "none";
+          return;
+        }
+
+        status.textContent = "Notas cargadas correctamente.";
+        summary.style.display = "grid";
+
+        const totalSubjects = data.length;
+        const average = (
+          data.reduce((acc, item) => acc + parseFloat(item.grade), 0) / totalSubjects
+        ).toFixed(2);
+
+        document.getElementById("totalSubjects").textContent = totalSubjects;
+        document.getElementById("averageGrade").textContent = average;
+
+        const rows = data.map(item => `
+          <tr>
+            <td>${item.subject}</td>
+            <td>
+              <span class="grade-pill ${getGradeClass(item.grade)}">
+                ${item.grade}
+              </span>
+            </td>
+          </tr>
+        `).join("");
+
+        tableContainer.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Materia</th>
+                <th>Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        `;
+
+      } catch (error) {
+        status.textContent = "No se pudo conectar con el servicio de notas.";
+        tableContainer.innerHTML = `<div class="empty">Error de conexión con grades-service.</div>`;
+        summary.style.display = "none";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("email");
+      window.location.href = "/";
+    }
+  </script>
+</body>
+</html>

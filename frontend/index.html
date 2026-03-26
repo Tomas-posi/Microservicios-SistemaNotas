@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Sistema de Notas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #dbeafe, #eff6ff, #e0f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      padding: 35px 30px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #475569;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #1e293b;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      background: #2563eb;
+      color: white;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s ease;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    #message {
+      margin-top: 18px;
+      min-height: 24px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #b91c1c;
+      background: #fee2e2;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .success {
+      color: #166534;
+      background: #dcfce7;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .demo-box {
+      margin-top: 24px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .demo-box h3 {
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+
+    .demo-box p {
+      color: #475569;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .demo-box strong {
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="badge">Microservicio de autenticación</span>
+    <h1>Sistema de Notas</h1>
+    <p class="subtitle">
+      Inicia sesión para acceder a tus notas académicas de forma segura.
+    </p>
+
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" placeholder="Ingresa tu correo" />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" placeholder="Ingresa tu contraseña" />
+    </div>
+
+    <button onclick="login()">Iniciar sesión</button>
+
+    <div id="message"></div>
+
+    <div class="demo-box">
+      <h3>Usuarios de prueba</h3>
+      <p><strong>estudiante@demo.com</strong> / 1234</p>
+      <p><strong>ana@demo.com</strong> / 1234</p>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const message = document.getElementById("message");
+
+      message.className = "";
+      message.textContent = "";
+
+      if (!email || !password) {
+        message.className = "error";
+        message.textContent = "Debes completar correo y contraseña.";
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3001/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          message.className = "error";
+          message.textContent = data.message || "Error al iniciar sesión";
+          return;
+        }
+
+        message.className = "success";
+        message.textContent = "Login exitoso. Redirigiendo...";
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("email", data.email);
+
+        setTimeout(() => {
+          window.location.href = "/grades.html";
+        }, 700);
+
+      } catch (error) {
+        message.className = "error";
+        message.textContent = "No se pudo conectar con el servicio de autenticación.";
+      }
+    }
+  </script>
+</body>
+</html>
