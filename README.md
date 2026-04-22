@@ -20,7 +20,7 @@ This project was created as an academic and technical exercise to explore how mu
 - frontend — user-facing interface for students
 - db — database-related resources
 - docker-compose.yml — orchestrates the services in containers
-This separation helps illustrate how each service can focus on a specific responsibility while remaining part of a larger system.
+- This separation helps illustrate how each service can focus on a specific responsibility while remaining part of a larger system.
 
 ## Tech Stack
 
